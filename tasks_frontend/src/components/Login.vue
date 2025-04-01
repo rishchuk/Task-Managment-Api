@@ -13,7 +13,7 @@
         </div>
         <button type="submit" class="login-button">Login</button>
       </form>
-      <p>Don't have an account?</p>
+      <p>Don't have an account? <router-link to="/register">Register here</router-link></p>
     </div>
   </div>
 </template>
