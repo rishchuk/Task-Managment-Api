@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
+import TaskList from '../components/TaskList.vue'
 
 
 //const routes = [
@@ -22,6 +23,7 @@ import Register from '../components/Register.vue';
 const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
+  { path: '/tasks', component: TaskList, meta: { requiresAuth: true } },
   { path: '/', redirect: '/login' },
 ];
 
