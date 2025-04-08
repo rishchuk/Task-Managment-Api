@@ -1,5 +1,6 @@
 <template>
   <div class="task-container">
+    <Dialog v-model:show="dialogVisible" @create="createTask"/>
     <div class="task-box">
       <div class="task-content">
         <h2>Task List</h2>
@@ -24,7 +25,7 @@
           <button @click="fetchTasks(prev)" :disabled="!prev">Previous</button>
           <button @click="fetchTasks(next)" :disabled="!next">Next</button>
         </div>
-        <router-link class="task-link" to="/tasks/create">+ Create a new task</router-link>
+        <button class="task-link" @click="showDialog">+ Create a new task</button>
       </div>
     </div>
   </div>
@@ -33,14 +34,17 @@
 
 <script>
 import axios from "axios";
+import Dialog from "@/components/UI/Dialog.vue";
 
 export default {
+  components: { Dialog },
   data() {
     return {
       tasks: [],
       next: null,
       prev: null,
       baseUrl: "http://127.0.0.1:8000/api/tasks/?limit=3",
+      dialogVisible: false,
     };
   },
   async created() {
@@ -72,6 +76,21 @@ export default {
         await this.fetchTasks(this.baseUrl);
       } catch (error) {
         console.error("Delete error:", error.response?.data || error.message);
+      }
+    },
+    showDialog() {
+      this.dialogVisible = true;
+    },
+    async createTask(newTask) {
+      try {
+        await axios.post("http://127.0.0.1:8000/api/tasks/", newTask, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        });
+        await this.fetchTasks(this.baseUrl);
+      } catch (error) {
+        console.error("Create error:", error.response?.data || error.message);
       }
     },
   },
@@ -180,6 +199,9 @@ body {
   text-decoration: none;
   color: #007fff;
   font-weight: bold;
+  font-size: 1.1rem;
+  background: none;
+  border: none;
 }
 
 .task-link:hover {
