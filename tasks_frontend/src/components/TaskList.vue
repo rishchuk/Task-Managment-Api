@@ -6,7 +6,13 @@
 
         <ul class="task-list">
           <li v-for="task in tasks" :key="task.id" class="task-item">
-            <h3>{{ task.title }}</h3>
+            <div class="task-header">
+              <h3>{{ task.title }}</h3>
+              <div class="task-actions">
+                <button>&#x270E;️</button>
+                <button @click="deleteTask(task.id)">&#x2716;</button>
+              </div>
+            </div>
             <p>{{ task.description }}</p>
             <p><strong>Status:</strong> {{ task.status }}</p>
           </li>
@@ -56,6 +62,18 @@ export default {
         console.error("Error fetching tasks:", error.response?.data || error.message);
       }
     },
+    async deleteTask(id) {
+      try {
+        await axios.delete(`http://127.0.0.1:8000/api/tasks/${id}/`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        });
+        await this.fetchTasks(this.baseUrl);
+      } catch (error) {
+        console.error("Delete error:", error.response?.data || error.message);
+      }
+    },
   },
 };
 </script>
@@ -75,7 +93,7 @@ body {
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 500px;
+  width: 520px;
   max-height: 85vh;
   min-height: 85vh;
   display: flex;
@@ -106,6 +124,27 @@ body {
   overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 1rem;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.task-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.task-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.task-actions button:hover {
+  color: #ff4d4d;
 }
 
 .task-footer {
