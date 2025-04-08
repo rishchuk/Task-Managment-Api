@@ -1,6 +1,16 @@
 <template>
+  <Navbar/>
   <router-view/>
 </template>
+
+<script>
+import axios from "axios";
+import Navbar from "@/components/UI/Navbar.vue";
+
+export default {
+  components: { Navbar }
+}
+</script>
 
 <style>
 #app {

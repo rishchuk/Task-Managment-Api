@@ -40,6 +40,13 @@ export default {
 
         if (response?.data?.access) {
           localStorage.setItem("access_token", response.data.access);
+          const userRes = await axios.get("http://127.0.0.1:8000/api/user/", {
+            headers: {
+              Authorization: `Bearer ${response.data.access}`,
+            },
+          });
+          localStorage.setItem("user", JSON.stringify(userRes.data));
+
           this.$router.push("/tasks");
         } else {
           console.error("Invalid response structure:", response);
