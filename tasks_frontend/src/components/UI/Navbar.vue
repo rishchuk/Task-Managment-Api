@@ -1,9 +1,9 @@
 <template>
   <nav class="navbar">
-    <router-link to="/">About</router-link>
+    <router-link to="/about">About</router-link>
     <div class="right" v-if="!isAuthPage">
       <span v-if="user">Hello, {{ user.username }}</span>
-      <button @click="logout">Logout</button>
+      <button v-if="user" @click="logout">Logout</button>
     </div>
   </nav>
 </template>

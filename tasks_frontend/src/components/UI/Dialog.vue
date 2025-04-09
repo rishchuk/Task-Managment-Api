@@ -1,7 +1,7 @@
 <template>
   <div class="dialog" v-if="show" @click.stop="hideDialog">
     <div @click.stop class="dialog__content">
-      <h3>Create Task</h3>
+      <h3>{{ isEditMode ? "Edit Task" : "Create Task" }}</h3>
       <form @submit.prevent="submitForm">
         <input v-model="title" type="text" placeholder="Title" required />
         <textarea v-model="description" placeholder="Description" required></textarea>
@@ -10,7 +10,7 @@
           <option value="in_progress">In Progress</option>
           <option value="completed">Completed</option>
         </select>
-        <button type="submit">Create</button>
+        <button type="submit">{{ isEditMode ? "Update" : "Create" }}</button>
       </form>
     </div>
   </div>
@@ -22,6 +22,14 @@ export default {
     show: {
       type: Boolean,
       default: false
+    },
+    task: {
+      type: Object,
+      default: null
+    },
+    isEditMode: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -31,19 +39,41 @@ export default {
       status: "new",
     };
   },
+  watch: {
+    task: {
+      immediate: true,
+      handler(newTask) {
+        if (newTask) {
+          this.title = newTask.title;
+          this.description = newTask.description;
+          this.status = newTask.status;
+        } else {
+          this.title = "";
+          this.description = "";
+          this.status = "new";
+        }
+      }
+    }
+  },
   methods: {
     hideDialog() {
       this.$emit("update:show", false);
     },
     async submitForm() {
-      this.$emit("create", {
+      const taskData = {
         title: this.title,
         description: this.description,
         status: this.status,
-      });
-      this.title = "";
-      this.description = "";
-      this.status = "new";
+        id: this.task?.id,
+      };
+      this.$emit(this.isEditMode ? "update" : "create", taskData);
+
+      if (!this.isEditMode) {
+        this.title = "";
+        this.description = "";
+        this.status = "new";
+      }
+
       this.hideDialog();
     }
   }

@@ -1,6 +1,12 @@
 <template>
   <div class="task-container">
-    <Dialog v-model:show="dialogVisible" @create="createTask"/>
+    <Dialog
+      v-model:show="dialogVisible"
+      :task="currentTask"
+      :isEditMode="isEditMode"
+      @create="createTask"
+      @update="updateTask"
+    />
     <div class="task-box">
       <div class="task-content">
         <h2>Task List</h2>
@@ -10,7 +16,7 @@
             <div class="task-header">
               <h3>{{ task.title }}</h3>
               <div class="task-actions">
-                <button>&#x270E;️</button>
+                <button @click="editTask(task)">&#x270E;️</button>
                 <button @click="deleteTask(task.id)">&#x2716;</button>
               </div>
             </div>
@@ -45,6 +51,8 @@ export default {
       prev: null,
       baseUrl: "http://127.0.0.1:8000/api/tasks/?limit=3",
       dialogVisible: false,
+      currentTask: null,
+      isEditMode: false,
     };
   },
   async created() {
@@ -91,6 +99,25 @@ export default {
         await this.fetchTasks(this.baseUrl);
       } catch (error) {
         console.error("Create error:", error.response?.data || error.message);
+      }
+    },
+    editTask(task) {
+      this.currentTask = task;
+      this.isEditMode = true;
+      this.dialogVisible = true;
+    },
+    async updateTask(task) {
+      try {
+        await axios.put(`http://127.0.0.1:8000/api/tasks/${task.id}/`, task, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        });
+        await this.fetchTasks(this.baseUrl);
+        this.currentTask = null;
+        this.isEditMode = false;
+      } catch (error) {
+        console.error("Update error:", error.response?.data || error.message);
       }
     },
   },
