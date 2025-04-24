@@ -1,0 +1,59 @@
+services:
+  back:
+    image: task_back
+    build: ./tasks_backend
+    container_name: task_back
+    command: "python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
+    networks:
+      - backend_net
+      - frontend_net
+    volumes:
+      - ./tasks_backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=mysql://${DB_USERNAME}:${DB_PASSWORD}@db/${DB_DATABASE}
+  front:
+    image: task_front
+    build: ./tasks_frontend
+    container_name: task_front
+    command: "npm run serve"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./tasks_frontend:/app
+      - /app/node_modules
+    networks:
+      - frontend_net
+    depends_on:
+      - back
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+    ports:
+      - "3306:3306"
+    volumes:
+      - taskmanagervolume:/var/lib/mysql
+    networks:
+      - backend_net
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  taskmanagervolume:
+networks:
+  backend_net:
+  frontend_net:
+
